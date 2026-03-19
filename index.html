@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Flora AI - Phiên bản Việt Hóa 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #10b981; --bg: #f8fafc; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: #064e3b; overflow-x: hidden; }
+        nav { background: white; padding: 1rem 8%; display: flex; justify-content: space-between; position: sticky; top:0; z-index:100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-weight: 800; color: var(--p); font-size: 1.5rem; text-decoration: none; }
+        .nav-link { font-weight: 700; color: #64748b; margin-left: 20px; cursor: pointer; text-decoration: none; padding: 8px 12px; border-radius: 10px; }
+        .nav-link.active { color: var(--p); background: #ecfdf5; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
+        .form-control { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; outline: none; transition: 0.3s; }
+        .pass-wrapper { position: relative; width: 100%; }
+        .pass-toggle { position: absolute; right: 15px; top: 18px; color: #94a3b8; cursor: pointer; }
+        .btn { background: var(--p); color: white; border: none; padding: 14px 28px; border-radius: 14px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: 0.3s; }
+        .search-area { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+        .filter-select { padding: 10px 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-weight: 600; color: #64748b; outline: none; min-width: 150px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .item { background: white; border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; transition: 0.3s; border: 1px solid #f1f5f9; }
+        .item:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+        .item img { width: 100%; height: 220px; object-fit: cover; }
+        .fav-btn { position: absolute; top: 15px; right: 15px; background: white; width: 40px; height: 40px; border-radius: 50%; color: #ef4444; display: flex; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .modal { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-c { background: white; padding: 40px; border-radius: 32px; max-width: 600px; width: 95%; position: relative; max-height: 85vh; overflow-y: auto; }
+        #chat-win { position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px; background: white; border-radius: 24px; display: none; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid #eee; overflow: hidden; z-index: 1000; }
+        #chat-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--p); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.5rem; z-index: 1000; box-shadow: 0 10px 30px rgba(16,185,129,0.3); }
+        #chat-body { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+    </style>
+</head>
+<body>
+
+<nav id="navbar" style="display:none">
+    <div class="logo" onclick="switchV('lib')"><i class="fas fa-leaf"></i> FLORA AI</div>
+    <div class="nav-links">
+        <a class="nav-link active" id="n-lib" onclick="switchV('lib')">Thư Viện</a>
+        <a class="nav-link" id="n-rec" onclick="switchV('rec')">Nhận Diện</a>
+        <a class="nav-link" id="n-fav" onclick="switchV('fav')">Yêu Thích</a>
+        <a class="nav-link" id="n-pro" onclick="switchV('pro')">Cá Nhân</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="v-auth" class="card" style="max-width: 420px; margin: 8vh auto;">
+        <div id="lp">
+            <h2 style="text-align: center; margin-bottom: 25px;">Đăng Nhập</h2>
+            <input type="text" id="lu" class="form-control" style="margin-bottom:15px" placeholder="Tên đăng nhập">
+            <div class="pass-wrapper">
+                <input type="password" id="lpw" class="form-control" placeholder="Mật khẩu" onkeyup="if(event.key==='Enter') doLogin()">
+                <i class="fas fa-eye pass-toggle" onclick="togglePass('lpw', this)"></i>
+            </div>
+            <button class="btn" style="width:100%; margin-top:15px" onclick="doLogin()">Bắt Đầu</button>
+            <p style="text-align: center; margin-top: 20px;">Chưa có tài khoản? <a href="#" onclick="toggleA(false)" style="color:var(--p); font-weight:700">Đăng ký ngay</a></p>
+        </div>
+        <div id="rp" style="display:none">
+            <h2 style="text-align: center; margin-bottom: 25px;">Tạo Tài Khoản</h2>
+            <input type="text" id="rh" class="form-control" style="margin-bottom:15px" placeholder="Họ và tên">
+            <input type="text" id="ru" class="form-control" style="margin-bottom:15px" placeholder="Tên đăng nhập">
+            <div class="pass-wrapper">
+                <input type="password" id="rpw" class="form-control" placeholder="Mật khẩu" onkeyup="if(event.key==='Enter') doReg()">
+                <i class="fas fa-eye pass-toggle" onclick="togglePass('rpw', this)"></i>
+            </div>
+            <button class="btn" style="width:100%; background:#6366f1; margin-top:15px" onclick="doReg()">Đăng Ký</button>
+            <p style="text-align: center; margin-top: 20px;">Đã có tài khoản? <a href="#" onclick="toggleA(true)" style="color:var(--p); font-weight:700">Đăng nhập</a></p>
+        </div>
+    </div>
+
+    <div id="v-lib" class="view" style="display:none">
+        <div class="search-area card">
+            <input type="text" id="sq" class="form-control" style="flex:1" placeholder="Tìm tên hoa..." onkeyup="if(event.key==='Enter') loadGrid()">
+            <select id="f-color" class="filter-select" onchange="loadGrid()"><option value="">Màu sắc</option></select>
+            <select id="f-ho" class="filter-select" onchange="loadGrid()"><option value="">Họ hoa</option></select>
+            <button class="btn" onclick="loadGrid()"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="lib-grid" class="grid"></div>
+    </div>
+
+    <div id="v-rec" class="view" style="display:none">
+        <div class="card" style="text-align: center;">
+            <h2 style="margin-bottom:20px">Tải ảnh nhận diện AI</h2>
+            <img id="pi" style="max-width:100%; border-radius:24px; display:none; margin-bottom:20px">
+            <button class="btn" style="background:#6366f1" onclick="document.getElementById('fi').click()"><i class="fas fa-upload"></i> Chọn tệp ảnh</button>
+            <input type="file" id="fi" style="display:none" onchange="loadF(event)">
+            <div id="res-box" class="card" style="margin-top:25px; display:none; text-align:left; background:#f0fdf4"></div>
+        </div>
+    </div>
+
+    <div id="v-fav" class="view" style="display:none"><div id="fav-grid" class="grid"></div></div>
+    <div id="v-pro" class="view" style="display:none">
+        <div class="card" style="max-width: 450px; margin: auto; text-align: center;">
+            <div style="width:100px; height:100px; background:var(--p); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin: 0 auto 20px;"><i class="fas fa-user"></i></div>
+            <h2 id="ph"></h2><p id="pu" style="color: #64748b; margin-bottom: 25px;"></p>
+            <button class="btn" style="background: #ef4444; width:100%" onclick="doOut()">Đăng Xuất</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal" onclick="if(event.target==this) closeModal()">
+    <div class="modal-c" id="modal-content"></div>
+</div>
+
+<div id="chat-win">
+    <div style="background:var(--p); color:white; padding:18px; font-weight:800; display:flex; justify-content:space-between;"><span>Trợ lý Flora AI</span><i class="fas fa-times" onclick="toggleChat()"></i></div>
+    <div id="chat-body"></div>
+    <div style="padding:15px; display:flex; gap:10px; border-top:1px solid #eee"><input type="text" id="chat-in" style="flex:1; border:none; outline:none;" placeholder="Hỏi AI..." onkeyup="if(event.key==='Enter') sendChat()"><button onclick="sendChat()" style="color:var(--p); border:none; background:none;"><i class="fas fa-paper-plane"></i></button></div>
+</div>
+<div id="chat-btn" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></div>
+
+<script>
+    const api = (u, m='GET', b=null) => fetch(u, {method:m, headers:{'Content-Type':'application/json'}, body:b?JSON.stringify(b):null, credentials:'include'});
+    let user=null;
+
+    function togglePass(id, icon) { const inp=document.getElementById(id); if(inp.type==='password'){inp.type='text'; icon.className='fas fa-eye-slash pass-toggle';}else{inp.type='password'; icon.className='fas fa-eye pass-toggle';} }
+    window.onload = check;
+    async function check() { 
+        const r=await api('/api/profile'); 
+        if(r.ok){ user=await r.json(); showApp(); loadMeta(); } else switchV('auth');
+    }
+    async function loadMeta() {
+        const r=await api('/api/metadata'), d=await r.json();
+        document.getElementById('f-color').innerHTML = '<option value="">Màu sắc</option>' + d.colors.map(c=>`<option value="${c}">${c}</option>`).join('');
+        document.getElementById('f-ho').innerHTML = '<option value="">Họ hoa</option>' + d.hos.map(h=>`<option value="${h}">${h}</option>`).join('');
+    }
+    function toggleA(isL){ document.getElementById('lp').style.display=isL?'block':'none'; document.getElementById('rp').style.display=isL?'none':'block'; }
+    async function doLogin(){ const r=await api('/api/login','POST',{tendangnhap:document.getElementById('lu').value, matkhau:document.getElementById('lpw').value}); if(r.ok) check(); else alert("Lỗi!"); }
+    async function doReg(){ const r=await api('/api/register','POST',{hoten:document.getElementById('rh').value, tendangnhap:document.getElementById('ru').value, matkhau:document.getElementById('rpw').value}); if(r.ok) toggleA(true); else alert("Lỗi!"); }
+    function showApp(){ document.getElementById('navbar').style.display='flex'; switchV('lib'); }
+    async function doOut(){ await api('/api/logout','POST'); location.reload(); }
+
+    function switchV(id) {
+        document.querySelectorAll('.view, #v-auth').forEach(v=>v.style.display='none');
+        document.getElementById('v-'+id).style.display='block';
+        document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+        if(id!=='auth') document.getElementById('n-'+id).classList.add('active');
+        if(id==='lib') loadGrid();
+        if(id==='fav') loadGrid('/api/favorites', 'fav-grid');
+        if(id==='pro'){ document.getElementById('ph').innerText=user.hoten; document.getElementById('pu').innerText="@"+user.tendangnhap; }
+    }
+
+    async function loadGrid(url='/api/flowers', target='lib-grid') {
+        const q=document.getElementById('sq').value, c=document.getElementById('f-color').value, h=document.getElementById('f-ho').value;
+        const finalUrl = `${url}?q=${q}&color=${c}&ho=${h}`;
+        const r=await api(finalUrl), data=await r.json();
+        document.getElementById(target).innerHTML = data.map(f => `
+            <div class="item" onclick='openD(${JSON.stringify(f).replace(/'/g, "&apos;")})'>
+                <img src="${f.hinh_url}" referrerpolicy="no-referrer">
+                <button class="fav-btn" onclick="event.stopPropagation(); togF(${f.id}, this, '${target}')"><i class="${(f.is_fav || target==='fav-grid')?'fas':'far'} fa-heart"></i></button>
+                <div style="padding:15px"><h4>${f.tenhoa}</h4><p style="color:#64748b; font-size:0.85rem">${f.ho}</p></div>
+            </div>`).join('');
+    }
+
+    async function togF(id, btn, target) {
+        const r=await api('/api/favorites/toggle','POST',{id_hoa:id}), d=await r.json();
+        if(target==='fav-grid' && d.status==='removed') loadGrid('/api/favorites', 'fav-grid');
+        else btn.querySelector('i').className=d.status==='added'?'fas fa-heart':'far fa-heart';
+    }
+
+    function openD(f) {
+        document.getElementById('modal-content').innerHTML = `
+            <span style="position:absolute; top:20px; right:25px; font-size:1.8rem; cursor:pointer; color:#94a3b8" onclick="closeModal()">&times;</span>
+            <img src="${f.hinh_url}" style="width:100%; height:320px; object-fit:cover; border-radius:24px; margin-bottom:25px" referrerpolicy="no-referrer">
+            <h2 style="color:var(--p); font-size:1.8rem">${f.tenhoa}</h2><p>Họ: ${f.ho} | Màu sắc: ${f.mausac}</p>
+            <div style="background:#f8fafc; padding:25px; border-radius:20px; margin-top:15px"><b>Thông tin:</b> ${f.mota}</div>
+            <div style="background:#f0fdf4; padding:25px; border-radius:20px"><b>Cách chăm sóc:</b> ${f.chamsoc}</div>`;
+        document.getElementById('modal').style.display='flex';
+    }
+    function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+    function loadF(e){ 
+        const r=new FileReader(); 
+        r.onload=ev=>{
+            document.getElementById('pi').style.display='block';
+            document.getElementById('pi').src=ev.target.result;
+            doAI(ev.target.result);
+        }; 
+        r.readAsDataURL(e.target.files[0]); 
+    }
+    async function doAI(b64){
+        const box=document.getElementById('res-box'); box.style.display='block'; box.innerHTML='<h3>Đang phân tích hoa...</h3>';
+        const r=await api('/api/recognize','POST',{image_base64:b64}), d=await r.json();
+        if(r.ok){ box.innerHTML=`<h2>${d.name}</h2><p>Họ: ${d.family}</p><br><p><b>Mô tả:</b> ${d.description}</p><br><p><b>Chăm sóc:</b> ${d.care}</p>`; }
+    }
+    function toggleChat(){ const w=document.getElementById('chat-win'); w.style.display=w.style.display==='flex'?'none':'flex'; }
+    async function sendChat(){
+        const i=document.getElementById('chat-in'), m=i.value, b=document.getElementById('chat-body'); if(!m) return;
+        b.innerHTML += `<div style="align-self:flex-end; background:var(--p); color:white; padding:10px 15px; border-radius:15px">${m}</div>`; i.value="";
+        const r=await api('/api/chat','POST',{message:m}), d=await r.json();
+        b.innerHTML += `<div style="align-self:flex-start; background:white; border:1px solid #eee; padding:10px 15px; border-radius:15px">${d.reply}</div>`; b.scrollTop=b.scrollHeight;
+    }
+</script>
+</body>
+</html>
